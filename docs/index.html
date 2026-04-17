@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>White Claw × Walmart Connect — Investment Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --wm-blue:#0053e2; --wm-spark:#ffc220;
+  --wc-pink:#e83d6a; --rom-teal:#00897b;
+  --total-purple:#5c35cc;
+  --glass:rgba(255,255,255,0.10);
+  --glass-card:rgba(10,28,65,0.72);
+  --shadow:0 8px 32px rgba(0,0,0,0.35);
+  --radius:20px;
+  --text-muted:#c8deff;
+  --text-bright:#ffffff;
+  --text-sub:#a8c8f0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:linear-gradient(145deg,#0a1628 0%,#0d2a52 40%,#0a3d6e 70%,#0b1f3a 100%);min-height:100vh;color:var(--text-bright);overflow-x:hidden}
+.wave-bg{position:fixed;bottom:0;left:0;width:100%;height:220px;pointer-events:none;z-index:0;opacity:.18}
+.wave-bg svg{width:100%;height:100%}
+.container{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:24px 20px 60px}
+
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-logo{width:56px;height:56px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#0d0d0d;text-align:center;line-height:1.1;border:3px solid var(--wm-spark);letter-spacing:.5px;padding:4px}
+.brand h1{font-size:clamp(1.3rem,3vw,2rem);font-weight:900;letter-spacing:-.5px;line-height:1.1;color:#fff}
+.brand h1 span{color:var(--wm-spark)}
+.brand p{font-size:.8rem;color:var(--text-muted);margin-top:3px}
+.header-badge{background:rgba(255,255,255,.12);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.28);border-radius:50px;padding:8px 20px;font-size:.78rem;font-weight:600;color:#fff;letter-spacing:.5px}
+
+/* SLIDER HERO */
+.slider-hero{background:var(--glass-card);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);padding:28px 32px;margin-bottom:24px;box-shadow:var(--shadow)}
+.slider-hero h2{font-size:1rem;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.slider-hero .hero-note{font-size:.8rem;color:var(--text-muted);margin-bottom:20px}
+.slider-row{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.slider-group{flex:1;min-width:280px}
+.slider-label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.slider-label span{font-size:.85rem;color:var(--text-muted);font-weight:600}
+.slider-label strong{font-size:1.6rem;font-weight:900;color:#fff}
+input[type=range]{width:100%;height:7px;border-radius:4px;appearance:none;background:linear-gradient(to right,var(--wm-spark) 0%,var(--wm-spark) var(--pct,14%),rgba(255,255,255,.18) var(--pct,14%),rgba(255,255,255,.18) 100%);cursor:pointer;outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;border:4px solid var(--wm-spark);box-shadow:0 2px 10px rgba(255,194,32,.5);cursor:pointer}
+.invest-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:220px}
+.invest-summary .is-box{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:10px 14px;text-align:center}
+.invest-summary .is-box small{font-size:.68rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.invest-summary .is-box strong{font-size:1.05rem;font-weight:800}
+
+/* TOTALS BAR */
+.totals-bar{background:var(--glass-card);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);padding:20px 28px;margin-bottom:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:var(--shadow)}
+.totals-bar h2{font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;flex:0 0 auto}
+.tbar-item{flex:1;min-width:110px;text-align:center}
+.tbar-item small{font-size:.65rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.tbar-item strong{font-size:1.2rem;font-weight:800;display:block}
+.tbar-div{width:1px;height:36px;background:rgba(255,255,255,.12);flex:0 0 auto}
+
+/* SECTIONS */
+.sections{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:24px}
+@media(max-width:960px){.sections{grid-template-columns:1fr}}
+.section-card{border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);position:relative}
+.section-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;z-index:1}
+.wmt-card::before{background:linear-gradient(90deg,var(--wm-blue),var(--wm-spark))}
+.rom-card::before{background:linear-gradient(90deg,var(--rom-teal),#26c6da)}
+.total-card::before{background:linear-gradient(90deg,var(--total-purple),var(--wc-pink))}
+.card-inner{background:var(--glass-card);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.13);height:100%;padding:24px}
+
+.card-header{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.card-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.wmt-icon{background:rgba(0,83,226,.3)}
+.rom-icon{background:rgba(0,137,123,.3)}
+.total-icon{background:rgba(92,53,204,.3)}
+.card-header h3{font-size:1rem;font-weight:800;color:#fff}
+.card-header p{font-size:.7rem;color:var(--text-muted);margin-top:2px}
+
+.highlight-box{border-radius:14px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.wmt-hl{background:linear-gradient(135deg,rgba(0,83,226,.4),rgba(0,83,226,.18));border:1px solid rgba(59,130,246,.5)}
+.rom-hl{background:linear-gradient(135deg,rgba(0,137,123,.4),rgba(0,137,123,.18));border:1px solid rgba(0,200,170,.4)}
+.total-hl{background:linear-gradient(135deg,rgba(92,53,204,.4),rgba(92,53,204,.18));border:1px solid rgba(139,92,246,.4)}
+.hl-main small{font-size:.7rem;color:var(--text-muted);display:block;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.hl-main strong{font-size:1.55rem;font-weight:900;display:block;color:#fff}
+.hl-main .hl-sub{font-size:.73rem;color:var(--text-muted);margin-top:3px}
+.hl-badge{padding:7px 13px;border-radius:20px;font-size:.73rem;font-weight:700;white-space:nowrap;text-align:center}
+.wmt-badge{background:rgba(59,130,246,.35);color:#bfdbfe;border:1px solid rgba(59,130,246,.4)}
+.rom-badge{background:rgba(0,137,123,.35);color:#99f6e4;border:1px solid rgba(0,200,170,.4)}
+.total-badge{background:rgba(139,92,246,.35);color:#ddd6fe;border:1px solid rgba(139,92,246,.4)}
+
+/* STAT GRID */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 14px}
+.stat-box .label{font-size:.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;font-weight:600;margin-bottom:4px}
+.stat-box .value{font-size:1.15rem;font-weight:800;color:#fff;line-height:1}
+.stat-box .sub{font-size:.7rem;color:var(--text-sub);margin-top:3px}
+.stat-full{grid-column:1/-1}
+
+/* ACCORDION */
+.acc-section{margin-bottom:14px}
+.acc-section h4{font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:8px}
+.acc-item{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;overflow:hidden;margin-bottom:8px;transition:border-color .2s,box-shadow .2s;cursor:pointer}
+.acc-item:hover{border-color:rgba(255,255,255,.22)}
+/* Selected quarter — glows in its own color via inline style override in JS */
+.acc-item.selected{border-width:2px;box-shadow:0 0 0 1px currentColor inset}
+.acc-item.selected.q1-sel{border-color:#f59e0b;box-shadow:0 0 12px rgba(245,158,11,.25)}
+.acc-item.selected.q2-sel{border-color:#3b82f6;box-shadow:0 0 12px rgba(59,130,246,.3)}
+.acc-item.selected.q3-sel{border-color:#e83d6a;box-shadow:0 0 12px rgba(232,61,106,.25)}
+.acc-active-tag{display:none;font-size:.62rem;font-weight:800;letter-spacing:.6px;padding:2px 7px;border-radius:10px;text-transform:uppercase}
+.acc-item.selected .acc-active-tag{display:inline-block}
+.acc-item.q1-sel .acc-active-tag{background:rgba(245,158,11,.25);color:#fbbf24}
+.acc-item.q2-sel .acc-active-tag{background:rgba(59,130,246,.25);color:#93c5fd}
+.acc-item.q3-sel .acc-active-tag{background:rgba(232,61,106,.25);color:#fda4af}
+.acc-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;user-select:none;transition:background .2s}
+.acc-header:hover{background:rgba(255,255,255,.06)}
+.acc-header:focus-visible{outline:2px solid var(--wm-spark);outline-offset:-2px}
+.acc-left{display:flex;align-items:center;gap:10px}
+.acc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.acc-title{font-size:.82rem;font-weight:700;color:#fff}
+.acc-subtitle{font-size:.68rem;color:var(--text-muted);margin-top:1px}
+.acc-right{display:flex;align-items:center;gap:10px}
+.acc-proj{font-size:1rem;font-weight:800;color:#fff}
+.acc-chevron{font-size:.75rem;color:var(--text-muted);transition:transform .25s}
+.acc-item.open .acc-chevron{transform:rotate(180deg)}
+.acc-body{display:none;padding:0 16px 14px}
+.acc-item.open .acc-body{display:block}
+.acc-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.acc-row:last-child{border-bottom:none}
+.acc-row span{font-size:.75rem;color:var(--text-muted)}
+.acc-row strong{font-size:.8rem;font-weight:700;color:#fff}
+.acc-bar-wrap{background:rgba(255,255,255,.08);border-radius:4px;height:5px;overflow:hidden;margin:8px 0 4px}
+.acc-bar{height:100%;border-radius:4px;transition:width .4s ease}
+
+/* ROM SCENARIO PILLS */
+.scenario-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.pill{background:rgba(0,137,123,.2);border:1px solid rgba(0,200,170,.3);padding:5px 12px;border-radius:8px;font-size:.75rem;font-weight:700;color:#99f6e4}
+
+/* CHART */
+.chart-wrap{height:155px;position:relative}
+
+/* CHART */
+.chart-wrap{height:155px;position:relative}
+.insight-card{background:var(--glass-card);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:18px 20px}
+.insight-card h4{font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:8px}
+.insight-card p{font-size:.82rem;line-height:1.55;color:#e0efff}
+
+footer{text-align:center;font-size:.7rem;color:var(--text-sub);padding-top:10px}
+
+</style>
+</head>
+<body>
+
+<div class="wave-bg" aria-hidden="true">
+  <svg viewBox="0 0 1440 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#1a6db5"><animate attributeName="d" dur="8s" repeatCount="indefinite"
+      values="M0,80 C360,160 1080,0 1440,80 L1440,220 L0,220 Z;M0,120 C360,40 1080,180 1440,100 L1440,220 L0,220 Z;M0,80 C360,160 1080,0 1440,80 L1440,220 L0,220 Z"/></path>
+    <path fill="#0d2a52" fill-opacity=".8"><animate attributeName="d" dur="12s" repeatCount="indefinite"
+      values="M0,140 C480,80 960,200 1440,140 L1440,220 L0,220 Z;M0,100 C480,180 960,60 1440,120 L1440,220 L0,220 Z;M0,140 C480,80 960,200 1440,140 L1440,220 L0,220 Z"/></path>
+  </svg>
+</div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo" aria-label="White Claw logo">WHITE<br/>CLAW<br/>🌊</div>
+      <div>
+        <h1>White Claw <span>× Walmart Connect</span></h1>
+        <p>FY26 Incremental Investment Analysis · Q1–Q3 2025</p>
+      </div>
+    </div>
+    <div class="header-badge">Mark Anthony Brands · iROAS Model</div>
+  </header>
+
+  <!-- SINGLE INVESTMENT SLIDER -->
+  <section class="slider-hero" aria-label="Investment scenario builder">
+    <h2>💡 Investment Scenario Builder</h2>
+    <p class="hero-note">One investment amount applies to <strong>both</strong> Walmart Connect <strong>and</strong> Rest of Market simultaneously — they are additive, not split.</p>
+    <div class="slider-row">
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>📊 Incremental Investment (both channels)</span>
+          <strong id="invest-label">$1.00M</strong>
+        </div>
+        <input type="range" id="invest-slider" min="500000" max="4000000" step="50000" value="1000000"
+               aria-label="Investment amount applied to both Walmart and REST of Market" oninput="updateAll()"/>
+        <div style="display:flex;justify-content:space-between;margin-top:6px">
+          <span style="font-size:.72rem;color:var(--text-muted)">$500K</span>
+          <span style="font-size:.72rem;color:var(--text-muted)">$1M</span>
+          <span style="font-size:.72rem;color:var(--text-muted)">$2M</span>
+          <span style="font-size:.72rem;color:var(--text-muted)">$3M</span>
+          <span style="font-size:.72rem;color:var(--text-muted)">$4M</span>
+        </div>
+      </div>
+      <div class="invest-summary">
+        <div class="is-box">
+          <small>Investment</small>
+          <strong id="invest-display" style="color:var(--wm-spark)">$1.00M</strong>
+        </div>
+        <div class="is-box">
+          <small>WMT + ROM Return</small>
+          <strong id="total-return-display" style="color:#5eead4">—</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOTALS BAR -->
+  <div class="totals-bar" role="region" aria-label="Combined return summary" aria-live="polite">
+    <h2>📈 Combined Impact</h2>
+    <div class="tbar-item"><small>Investment</small><strong id="tb-invest" style="color:var(--wm-spark)">—</strong></div>
+    <div class="tbar-div" aria-hidden="true"></div>
+    <div class="tbar-item"><small>Walmart Return</small><strong id="tb-wmt" style="color:#93c5fd">—</strong></div>
+    <div class="tbar-div" aria-hidden="true"></div>
+    <div class="tbar-item"><small>ROM Return</small><strong id="tb-rom" style="color:#5eead4">—</strong></div>
+    <div class="tbar-div" aria-hidden="true"></div>
+    <div class="tbar-item"><small>Total Return</small><strong id="tb-total" style="color:#fff">—</strong></div>
+    <div class="tbar-div" aria-hidden="true"></div>
+    <div class="tbar-item"><small>Blended iROAS</small><strong id="tb-iroas" style="color:#c4b5fd">—</strong></div>
+  </div>
+
+  <!-- THREE SECTIONS -->
+  <main class="sections">
+
+    <!-- ══ WALMART CONNECT ══ -->
+    <article class="section-card wmt-card" aria-label="Walmart Connect">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-icon wmt-icon">🔵</div>
+          <div><h3>Walmart Connect</h3><p>Onsite Display · FY26 Q1–Q3 · Same investment, Walmart iROAS applied</p></div>
+        </div>
+
+        <div class="highlight-box wmt-hl" aria-live="polite">
+          <div class="hl-main">
+            <small>Projected Incremental Return @ Investment</small>
+            <strong id="wmt-return">—</strong>
+            <div class="hl-sub">Using the selected quarter’s exact iROAS — click a quarter below to switch</div>
+          </div>
+          <div class="hl-badge wmt-badge" id="wmt-iroas-badge">Wt. iROAS: $5.96</div>
+        </div>
+
+        <!-- QUARTER ACCORDIONS -->
+        <div class="acc-section">
+          <h4>▾ Select a Quarter — drives Walmart projection above</h4>
+
+          <!-- Q1 -->
+          <div class="acc-item q1-sel" id="acc-q1">
+            <div class="acc-header" role="button" tabindex="0" aria-expanded="false" aria-controls="acc-q1-body">
+              <div class="acc-left">
+                <div class="acc-dot" style="background:#f59e0b"></div>
+                <div>
+                  <div class="acc-title">Q1 · Apr–Jun 2025</div>
+                  <div class="acc-subtitle">iROAS $1.70 · Actual invest $428K</div>
+                </div>
+              </div>
+              <div class="acc-right">
+                <span class="acc-active-tag">◉ Active</span>
+                <span class="acc-proj" id="q1-proj" style="color:#f59e0b">—</span>
+                <span class="acc-chevron">▼</span>
+              </div>
+            </div>
+            <div class="acc-body" id="acc-q1-body">
+              <div class="acc-bar-wrap"><div class="acc-bar" id="acc-bar-q1" style="width:10%;background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div>
+              <div class="acc-row"><span>iROAS (Q1)</span><strong style="color:#f59e0b">$1.70</strong></div>
+              <div class="acc-row"><span>Actual Investment</span><strong>$428,154</strong></div>
+              <div class="acc-row"><span>Actual Incremental Revenue</span><strong style="color:#f59e0b">$3.2M</strong></div>
+              <div class="acc-row"><span>Actual Impressions</span><strong>229M</strong></div>
+              <div class="acc-row"><span>Actual ROAS</span><strong>$45.18</strong></div>
+              <div class="acc-row"><span>Sales Lift</span><strong>15.99%</strong></div>
+              <div class="acc-row"><span>New Buyers</span><strong>47%</strong></div>
+              <div class="acc-row" style="background:rgba(245,158,11,.1);border-radius:6px;padding:6px 4px;margin-top:6px">
+                <span style="color:#fbbf24;font-weight:700">→ Projected at slider $</span>
+                <strong id="q1-proj-body" style="color:#fbbf24">—</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q2 -->
+          <div class="acc-item q2-sel" id="acc-q2">
+            <div class="acc-header" role="button" tabindex="0" aria-expanded="false" aria-controls="acc-q2-body">
+              <div class="acc-left">
+                <div class="acc-dot" style="background:#3b82f6"></div>
+                <div>
+                  <div class="acc-title">Q2 · Jul–Sep 2025 ⭐ Best Quarter</div>
+                  <div class="acc-subtitle">iROAS $16.75 · Actual invest $283K</div>
+                </div>
+              </div>
+              <div class="acc-right">
+                <span class="acc-active-tag">◉ Active</span>
+                <span class="acc-proj" id="q2-proj" style="color:#3b82f6">—</span>
+                <span class="acc-chevron">▼</span>
+              </div>
+            </div>
+            <div class="acc-body" id="acc-q2-body">
+              <div class="acc-bar-wrap"><div class="acc-bar" id="acc-bar-q2" style="width:100%;background:linear-gradient(90deg,#0053e2,#3b82f6)"></div></div>
+              <div class="acc-row"><span>iROAS (Q2)</span><strong style="color:#3b82f6">$16.75</strong></div>
+              <div class="acc-row"><span>Actual Investment</span><strong>$283,142</strong></div>
+              <div class="acc-row"><span>Actual Incremental Revenue</span><strong style="color:#3b82f6">$4.74M</strong></div>
+              <div class="acc-row"><span>Actual Impressions</span><strong>124M</strong></div>
+              <div class="acc-row"><span>Actual ROAS</span><strong>$52.63</strong></div>
+              <div class="acc-row"><span>Sales Lift</span><strong>18.22%</strong></div>
+              <div class="acc-row"><span>New Buyers</span><strong>52%</strong></div>
+              <div class="acc-row" style="background:rgba(59,130,246,.1);border-radius:6px;padding:6px 4px;margin-top:6px">
+                <span style="color:#93c5fd;font-weight:700">→ Projected at slider $</span>
+                <strong id="q2-proj-body" style="color:#93c5fd">—</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q3 -->
+          <div class="acc-item q3-sel" id="acc-q3">
+            <div class="acc-header" role="button" tabindex="0" aria-expanded="false" aria-controls="acc-q3-body">
+              <div class="acc-left">
+                <div class="acc-dot" style="background:#e83d6a"></div>
+                <div>
+                  <div class="acc-title">Q3 · Oct–Dec 2025 🔴 Most Recent</div>
+                  <div class="acc-subtitle">iROAS $3.74 · Actual invest $555K</div>
+                </div>
+              </div>
+              <div class="acc-right">
+                <span class="acc-active-tag">◉ Active</span>
+                <span class="acc-proj" id="q3-proj" style="color:#e83d6a">—</span>
+                <span class="acc-chevron">▼</span>
+              </div>
+            </div>
+            <div class="acc-body" id="acc-q3-body">
+              <div class="acc-bar-wrap"><div class="acc-bar" id="acc-bar-q3" style="width:22%;background:linear-gradient(90deg,#e83d6a,#f472b6)"></div></div>
+              <div class="acc-row"><span>iROAS (Q3)</span><strong style="color:#e83d6a">$3.74</strong></div>
+              <div class="acc-row"><span>Actual Investment</span><strong>$554,700</strong></div>
+              <div class="acc-row"><span>Actual Incremental Revenue</span><strong style="color:#e83d6a">$2.08M</strong></div>
+              <div class="acc-row"><span>Actual Impressions</span><strong>250M</strong></div>
+              <div class="acc-row"><span>Actual ROAS</span><strong>$32.09</strong></div>
+              <div class="acc-row"><span>Sales Lift</span><strong>8.7%</strong></div>
+              <div class="acc-row"><span>YoY GMV Growth</span><strong style="color:#e83d6a">+7.15%</strong></div>
+              <div class="acc-row" style="background:rgba(232,61,106,.1);border-radius:6px;padding:6px 4px;margin-top:6px">
+                <span style="color:#fda4af;font-weight:700">→ Projected at slider $</span>
+                <strong id="q3-proj-body" style="color:#fda4af">—</strong>
+              </div>
+            </div>
+          </div>
+        </div><!-- /acc-section -->
+
+        <div class="chart-wrap" style="margin-top:4px">
+          <canvas id="wmtQChart" aria-label="Walmart quarterly iROAS bar chart" role="img"></canvas>
+        </div>
+      </div>
+    </article>
+
+    <!-- ══ REST OF MARKET ══ -->
+    <article class="section-card rom-card" aria-label="Rest of Market">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-icon rom-icon">🟢</div>
+          <div><h3>Rest of Market</h3><p>NCS Verified · Same investment, ROM iROAS applied</p></div>
+        </div>
+
+        <div class="highlight-box rom-hl" aria-live="polite">
+          <div class="hl-main">
+            <small>Projected Incremental Return @ Investment</small>
+            <strong id="rom-return">—</strong>
+            <div class="hl-sub">NCS-verified iROAS × same investment amount</div>
+          </div>
+          <div class="hl-badge rom-badge">iROAS: $80.49</div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-box stat-full">
+            <div class="label">NCS Verified iROAS — Rest of Market</div>
+            <div class="value" style="color:#5eead4;font-size:1.9rem">$80.49</div>
+            <div class="sub">Highest verified rate in portfolio</div>
+          </div>
+          <div class="stat-box stat-full">
+            <div class="label">Key Scenario Returns</div>
+            <div class="scenario-pills">
+              <span class="pill">$500K → $40.2M</span>
+              <span class="pill">$1M → $80.5M</span>
+              <span class="pill">$2M → $160.1M</span>
+              <span class="pill">$4M → $321.0M</span>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+    </article>
+
+    <!-- ══ COMBINED TOTAL ══ -->
+    <article class="section-card total-card" aria-label="Combined Total">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-icon total-icon">⚡</div>
+          <div><h3>Combined Total</h3><p>Walmart + ROM · Same $ invested, both channels return simultaneously</p></div>
+        </div>
+
+        <div class="highlight-box total-hl" aria-live="polite">
+          <div class="hl-main">
+            <small>Total Incremental Return (WMT + ROM)</small>
+            <strong id="total-return-big">—</strong>
+            <div class="hl-sub">One investment, two revenue streams</div>
+          </div>
+          <div class="hl-badge total-badge" id="total-iroas-badge">Blended iROAS: —</div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="label">Walmart Return</div>
+            <div class="value" style="color:#93c5fd" id="tot-wmt-ret">—</div>
+          </div>
+          <div class="stat-box">
+            <div class="label">ROM Return</div>
+            <div class="value" style="color:#5eead4" id="tot-rom-ret">—</div>
+          </div>
+          <div class="stat-box">
+            <div class="label">Investment (both)</div>
+            <div class="value" id="tot-invest">—</div>
+            <div class="sub">Applied to each channel</div>
+          </div>
+          <div class="stat-box">
+            <div class="label">Net Gain</div>
+            <div class="value" style="color:var(--wm-spark)" id="tot-net">—</div>
+            <div class="sub">Return minus 1× invest</div>
+          </div>
+          <div class="stat-box stat-full">
+            <div class="label">FY26 Baseline — Actual Q1–Q3 Walmart Only</div>
+            <div style="display:flex;gap:16px;margin-top:6px;flex-wrap:wrap">
+              <div><div style="font-size:.68rem;color:var(--text-muted)">WMT Spend</div><div style="font-weight:700;color:#fff">$1.27M</div></div>
+              <div><div style="font-size:.68rem;color:var(--text-muted)">Incremental</div><div style="font-weight:700;color:#93c5fd">$10.02M</div></div>
+              <div><div style="font-size:.68rem;color:var(--text-muted)">Traceable Sales</div><div style="font-weight:700;color:var(--wm-spark)">$55.9M</div></div>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+    </article>
+
+  </main>
+
+  <!-- INSIGHTS -->
+  <section class="insights" aria-label="Strategic insights">
+    <div class="insight-card">
+      <h4>🏆 Q2 Is the Walmart Lever</h4>
+      <p>Jul–Sep 2025 delivered a <strong style="color:#93c5fd">$16.75 iROAS</strong> — 4.5× better than Q3. 18.22% sales lift and 52% new buyer rate signal the strongest period for Walmart investment. Prioritize Q2 budgeting for maximum in-store efficiency.</p>
+    </div>
+    <div class="insight-card">
+      <h4>📈 Q3 Is a Compounding Signal</h4>
+      <p>Oct–Dec 2025 showed the <strong style="color:#fda4af">largest YoY GMV growth (+7.15%)</strong> despite a lower $3.74 iROAS. Sustained presence is building brand equity beyond pure efficiency — the floor is rising quarter over quarter.</p>
+    </div>
+    <div class="insight-card">
+      <h4>🎯 This Is an AND, Not an OR</h4>
+      <p>Every dollar invested generates <strong style="color:var(--wm-spark)">simultaneous returns</strong> at Walmart AND in the broader market. There is no trade-off — both channels benefit from the same investment, making the combined blended iROAS the right planning metric.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>FY26 White Claw × Walmart Connect · Mark Anthony Brands Inc. · Q1 Apr–Jun | Q2 Jul–Sep | Q3 Oct–Dec 2025</p>
+    <p style="margin-top:4px">iROAS: WMT Q1 $1.70 · Q2 $16.75 · Q3 $3.74 · ROM $80.49 · Sources: WMC SLR Oct 2025 · Display EOC Reports (FY26)</p>
+  </footer>
+
+</div>
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const WMT = {
+  q1: { invest:428154,  iroas:1.70,  inc:3200000, label:'Q1 · Apr–Jun 2025', color:'#f59e0b', dot:'#f59e0b',
+        impr:'229M', roas:'$45.18', lift:'15.99%', newBuyers:'47%' },
+  q2: { invest:283142,  iroas:16.75, inc:4740000, label:'Q2 · Jul–Sep 2025', color:'#3b82f6', dot:'#3b82f6',
+        impr:'124M', roas:'$52.63', lift:'18.22%', newBuyers:'52%' },
+  q3: { invest:554700,  iroas:3.74,  inc:2080000, label:'Q3 · Oct–Dec 2025', color:'#e83d6a', dot:'#e83d6a',
+        impr:'250M', roas:'$32.09', lift:'8.7%',  newBuyers:'N/A' },
+};
+const ROM_IROAS = 80.49;
+const WMT_TOTAL_INVEST = WMT.q1.invest + WMT.q2.invest + WMT.q3.invest;
+const Q_WEIGHTS = {
+  q1: WMT.q1.invest / WMT_TOTAL_INVEST,
+  q2: WMT.q2.invest / WMT_TOTAL_INVEST,
+  q3: WMT.q3.invest / WMT_TOTAL_INVEST,
+};
+// Investment-weighted blended iROAS across Q1–Q3
+const WMT_WEIGHTED_IROAS =
+  Q_WEIGHTS.q1 * WMT.q1.iroas +
+  Q_WEIGHTS.q2 * WMT.q2.iroas +
+  Q_WEIGHTS.q3 * WMT.q3.iroas;   // ≈ $5.96
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const fmt  = (n, dec=1) => n>=1e9 ? '$'+(n/1e9).toFixed(dec)+'B'
+                         : n>=1e6 ? '$'+(n/1e6).toFixed(dec)+'M'
+                         : n>=1e3 ? '$'+(n/1e3).toFixed(dec)+'K'
+                         : '$'+n.toFixed(0);
+const fmtM = n => '$'+(n/1e6).toFixed(2)+'M';
+const $    = id => document.getElementById(id);
+const set  = (id, val) => { const el=$(id); if(el) el.textContent=val; };
+
+function updateSliderTrack(el) {
+  const p = ((+el.value - +el.min) / (+el.max - +el.min) * 100) + '%';
+  el.style.setProperty('--pct', p);
+}
+
+// ── QUARTER SELECTION ────────────────────────────────────────────────────────
+let selectedQ = 'q3';  // default: most recent quarter
+
+function selectQuarter(q) {
+  selectedQ = q;
+  const section = document.querySelector('.acc-section');
+  // Update all items: remove selected+open, then set on chosen
+  section.querySelectorAll('.acc-item').forEach(item => {
+    item.classList.remove('selected', 'open');
+  });
+  const chosen = $('acc-' + q);
+  if (chosen) chosen.classList.add('selected', 'open');
+  // Sync aria-expanded
+  section.querySelectorAll('.acc-header').forEach(h => h.setAttribute('aria-expanded','false'));
+  const chosenHeader = chosen && chosen.querySelector('.acc-header');
+  if (chosenHeader) chosenHeader.setAttribute('aria-expanded','true');
+  updateAll();
+}
+
+function initAccordions() {
+  document.querySelectorAll('.acc-header').forEach(header => {
+    const item   = header.closest('.acc-item');
+    const q      = item.id.replace('acc-','');  // 'q1' | 'q2' | 'q3'
+    header.addEventListener('click', () => selectQuarter(q));
+    header.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectQuarter(q); }
+    });
+  });
+  selectQuarter('q3');  // open + select Q3 on load
+}
+
+// ── CHARTS ────────────────────────────────────────────────────────────────────
+function makeBarChart(canvasId, labels, data, colors, yFmt) {
+  return new Chart(document.getElementById(canvasId), {
+    type:'bar',
+    data:{ labels, datasets:[{ data, backgroundColor:colors.bg, borderColor:colors.border, borderWidth:2, borderRadius:6 }] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: ctx=>' '+yFmt(ctx.raw) } } },
+      scales:{
+        x:{ grid:{ color:'rgba(255,255,255,.07)' }, ticks:{ color:'#c8deff', font:{ size:10 } } },
+        y:{ grid:{ color:'rgba(255,255,255,.07)' }, ticks:{ color:'#c8deff', font:{ size:10 }, callback:yFmt } },
+      },
+    },
+  });
+}
+
+function initCharts() {
+  makeBarChart('wmtQChart',
+    ['Q1 · $1.70','Q2 · $16.75','Q3 · $3.74'],
+    [WMT.q1.iroas, WMT.q2.iroas, WMT.q3.iroas],
+    { bg:['rgba(245,158,11,.75)','rgba(59,130,246,.8)','rgba(232,61,106,.75)'],
+      border:['#f59e0b','#3b82f6','#e83d6a'] },
+    v => '$'+v.toFixed(2)
+  );
+}
+
+// ── MAIN UPDATE ───────────────────────────────────────────────────────────────
+function updateAll() {
+  const invest = +$('invest-slider').value;
+  updateSliderTrack($('invest-slider'));
+  set('invest-label', fmtM(invest));
+
+  // SAME $invest goes to BOTH channels simultaneously.
+  // Walmart uses the SELECTED quarter's exact iROAS (not a blend).
+  const activeQ     = WMT[selectedQ];
+  const wmtReturn   = invest * activeQ.iroas;
+  const romReturn   = invest * ROM_IROAS;
+  const totalReturn = wmtReturn + romReturn;
+  const blendedIROAS = totalReturn / invest;
+
+  // Show projected return for every quarter in each accordion row
+  const q1Proj = invest * WMT.q1.iroas;
+  const q2Proj = invest * WMT.q2.iroas;
+  const q3Proj = invest * WMT.q3.iroas;
+
+  // ── Summary row ──
+  set('invest-display', fmtM(invest));
+  set('total-return-display', fmt(totalReturn));
+
+  // ── Totals bar ──
+  set('tb-invest', fmtM(invest));
+  set('tb-wmt',    fmt(wmtReturn));
+  set('tb-rom',    fmt(romReturn));
+  set('tb-total',  fmt(totalReturn));
+  set('tb-iroas',  '$'+blendedIROAS.toFixed(2));
+
+  // ── Walmart card — reflects selected quarter exactly ──
+  set('wmt-return',      fmt(wmtReturn));
+  set('wmt-iroas-badge', activeQ.label.split(' · ')[0] + ' iROAS: $' + activeQ.iroas.toFixed(2));
+
+  // Accordion projected returns
+  set('q1-proj', fmt(q1Proj));  set('q1-proj-body', fmt(q1Proj));
+  set('q2-proj', fmt(q2Proj));  set('q2-proj-body', fmt(q2Proj));
+  set('q3-proj', fmt(q3Proj));  set('q3-proj-body', fmt(q3Proj));
+  // Accordion bars: scale bar width to Q2 being 100% (highest iROAS)
+  const maxIROAS = WMT.q2.iroas;
+  ['q1','q2','q3'].forEach(q => {
+    const bar = $(`acc-bar-${q}`);
+    if (bar) bar.style.width = (WMT[q].iroas / maxIROAS * 100) + '%';
+  });
+
+  // ── ROM card ──
+  set('rom-return', fmt(romReturn));
+
+  // ── Total card ──
+  set('total-return-big',  fmt(totalReturn));
+  set('total-iroas-badge', 'Blended iROAS: $'+blendedIROAS.toFixed(2));
+  set('tot-wmt-ret',  fmt(wmtReturn));
+  set('tot-rom-ret',  fmt(romReturn));
+  set('tot-invest',   fmtM(invest));
+  set('tot-net',      fmt(totalReturn - invest));
+
+  // ── Live chart (Walmart Q iROAS — static, no update needed) ──
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initCharts();
+  initAccordions();
+  updateAll();
+});
+
+</script>
+</body>
+</html>
