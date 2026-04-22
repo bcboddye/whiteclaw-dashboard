@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>White Claw × Walmart Connect — Investment Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="whiteclaw-dashboard.css"/>
+</head>
+<body>
+
+<div class="wave-bg" aria-hidden="true">
+  <svg viewBox="0 0 1440 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#1a6db5"><animate attributeName="d" dur="8s" repeatCount="indefinite"
+      values="M0,80 C360,160 1080,0 1440,80 L1440,220 L0,220 Z;M0,120 C360,40 1080,180 1440,100 L1440,220 L0,220 Z;M0,80 C360,160 1080,0 1440,80 L1440,220 L0,220 Z"/></path>
+    <path fill="#0d2a52" fill-opacity=".8"><animate attributeName="d" dur="12s" repeatCount="indefinite"
+      values="M0,140 C480,80 960,200 1440,140 L1440,220 L0,220 Z;M0,100 C480,180 960,60 1440,120 L1440,220 L0,220 Z;M0,140 C480,80 960,200 1440,140 L1440,220 L0,220 Z"/></path>
+  </svg>
+</div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo" aria-label="White Claw logo">WHITE<br/>CLAW<br/>🌊</div>
+      <div>
+        <h1>White Claw <span>× Walmart Connect</span></h1>
+        <p>FY26 Incremental Investment Analysis · Q1–Q3 2025</p>
+      </div>
+    </div>
+    <div class="header-badge">Mark Anthony Brands · iROAS Model</div>
+  </header>
+
+  <!-- SINGLE INVESTMENT SLIDER -->
+  <section class="slider-hero" aria-label="Investment scenario builder">
+    <h2>💡 Investment Scenario Builder</h2>
+    <p class="hero-note">One investment amount applies to <strong>both</strong> Walmart Connect <strong>and</strong> Rest of Market simultaneously — they are additive, not split.</p>
+    <div class="slider-row">
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>📊 Incremental Investment (both channels)</span>
+          <strong id="invest-label">$1.00M</strong>
+        </div>
+        <input type="range" id="invest-slider" min="500000" max="4000000" step="50000" value="1000000"
+               aria-label="Investment amount applied to both Walmart and REST of Market" oninput="updateAll()"/>
+        <div style="display:flex;justify-content:space-between;margin-top:6px">
+          <span style="font-size:.72rem;color:var(--text-muted)">$500K</span>
+          <span style="font-size:.72rem;color:var(--text-muted)">$1M</span>
+          <span style="font-size:.72rem;color:var(--text-muted)">$2M</span>
+          <span style="font-size:.72rem;color:var(--text-muted)">$3M</span>
+          <span style="font-size:.72rem;color:var(--text-muted)">$4M</span>
+        </div>
+      </div>
+      <div class="invest-summary">
+        <div class="is-box">
+          <small>Investment</small>
+          <strong id="invest-display" style="color:var(--wm-spark)">$1.00M</strong>
+        </div>
+        <div class="is-box">
+          <small>WMT + ROM Return</small>
+          <strong id="total-return-display" style="color:#5eead4">—</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOTALS BAR -->
+  <div class="totals-bar" role="region" aria-label="Combined return summary" aria-live="polite">
+    <h2>📈 Combined Impact</h2>
+    <div class="tbar-item"><small>Investment</small><strong id="tb-invest" style="color:var(--wm-spark)">—</strong></div>
+    <div class="tbar-div" aria-hidden="true"></div>
+    <div class="tbar-item"><small>Walmart Return</small><strong id="tb-wmt" style="color:#93c5fd">—</strong></div>
+    <div class="tbar-div" aria-hidden="true"></div>
+    <div class="tbar-item"><small>ROM Return</small><strong id="tb-rom" style="color:#5eead4">—</strong></div>
+    <div class="tbar-div" aria-hidden="true"></div>
+    <div class="tbar-item"><small>Total Return</small><strong id="tb-total" style="color:#fff">—</strong></div>
+    <div class="tbar-div" aria-hidden="true"></div>
+    <div class="tbar-item"><small>Blended iROAS</small><strong id="tb-iroas" style="color:#c4b5fd">—</strong></div>
+  </div>
+
+  <!-- THREE SECTIONS -->
+  <main class="sections">
+
+    <!-- ══ WALMART CONNECT ══ -->
+    <article class="section-card wmt-card" aria-label="Walmart Connect">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-icon wmt-icon">🔵</div>
+          <div><h3>Walmart Connect</h3><p>Onsite Display · FY26 Q1–Q3 · Same investment, Walmart iROAS applied</p></div>
+        </div>
+
+        <div class="highlight-box wmt-hl" aria-live="polite">
+          <div class="hl-main">
+            <small>Projected Incremental Return @ Investment</small>
+            <strong id="wmt-return">—</strong>
+            <div class="hl-sub">Using the selected quarter’s exact iROAS — click a quarter below to switch</div>
+          </div>
+          <div class="hl-badge wmt-badge" id="wmt-iroas-badge">Wt. iROAS: $5.96</div>
+        </div>
+
+        <!-- QUARTER ACCORDIONS -->
+        <div class="acc-section">
+          <h4>▾ Select a Quarter — drives Walmart projection above</h4>
+
+          <!-- Q1 -->
+          <div class="acc-item q1-sel" id="acc-q1">
+            <div class="acc-header" role="button" tabindex="0" aria-expanded="false" aria-controls="acc-q1-body">
+              <div class="acc-left">
+                <div class="acc-dot" style="background:#f59e0b"></div>
+                <div>
+                  <div class="acc-title">Q1 · Apr–Jun 2025</div>
+                  <div class="acc-subtitle">iROAS $1.70 · Actual invest $428K</div>
+                </div>
+              </div>
+              <div class="acc-right">
+                <span class="acc-active-tag">◉ Active</span>
+                <span class="acc-proj" id="q1-proj" style="color:#f59e0b">—</span>
+                <span class="acc-chevron">▼</span>
+              </div>
+            </div>
+            <div class="acc-body" id="acc-q1-body">
+              <div class="acc-bar-wrap"><div class="acc-bar" id="acc-bar-q1" style="width:10%;background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div>
+              <div class="acc-row"><span>iROAS (Q1)</span><strong style="color:#f59e0b">$1.70</strong></div>
+              <div class="acc-row"><span>Actual Investment</span><strong>$428,154</strong></div>
+              <div class="acc-row"><span>Actual Incremental Revenue</span><strong style="color:#f59e0b">$3.2M</strong></div>
+              <div class="acc-row"><span>Actual Impressions</span><strong>229M</strong></div>
+              <div class="acc-row"><span>Actual ROAS</span><strong>$45.18</strong></div>
+              <div class="acc-row"><span>Sales Lift</span><strong>15.99%</strong></div>
+              <div class="acc-row"><span>New Buyers</span><strong>47%</strong></div>
+              <div class="acc-row" style="background:rgba(245,158,11,.1);border-radius:6px;padding:6px 4px;margin-top:6px">
+                <span style="color:#fbbf24;font-weight:700">→ Projected at slider $</span>
+                <strong id="q1-proj-body" style="color:#fbbf24">—</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q2 -->
+          <div class="acc-item q2-sel" id="acc-q2">
+            <div class="acc-header" role="button" tabindex="0" aria-expanded="false" aria-controls="acc-q2-body">
+              <div class="acc-left">
+                <div class="acc-dot" style="background:#3b82f6"></div>
+                <div>
+                  <div class="acc-title">Q2 · Jul–Sep 2025 ⭐ Best Quarter</div>
+                  <div class="acc-subtitle">iROAS $16.75 · Actual invest $283K</div>
+                </div>
+              </div>
+              <div class="acc-right">
+                <span class="acc-active-tag">◉ Active</span>
+                <span class="acc-proj" id="q2-proj" style="color:#3b82f6">—</span>
+                <span class="acc-chevron">▼</span>
+              </div>
+            </div>
+            <div class="acc-body" id="acc-q2-body">
+              <div class="acc-bar-wrap"><div class="acc-bar" id="acc-bar-q2" style="width:100%;background:linear-gradient(90deg,#0053e2,#3b82f6)"></div></div>
+              <div class="acc-row"><span>iROAS (Q2)</span><strong style="color:#3b82f6">$16.75</strong></div>
+              <div class="acc-row"><span>Actual Investment</span><strong>$283,142</strong></div>
+              <div class="acc-row"><span>Actual Incremental Revenue</span><strong style="color:#3b82f6">$4.74M</strong></div>
+              <div class="acc-row"><span>Actual Impressions</span><strong>124M</strong></div>
+              <div class="acc-row"><span>Actual ROAS</span><strong>$52.63</strong></div>
+              <div class="acc-row"><span>Sales Lift</span><strong>18.22%</strong></div>
+              <div class="acc-row"><span>New Buyers</span><strong>52%</strong></div>
+              <div class="acc-row" style="background:rgba(59,130,246,.1);border-radius:6px;padding:6px 4px;margin-top:6px">
+                <span style="color:#93c5fd;font-weight:700">→ Projected at slider $</span>
+                <strong id="q2-proj-body" style="color:#93c5fd">—</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q3 -->
+          <div class="acc-item q3-sel" id="acc-q3">
+            <div class="acc-header" role="button" tabindex="0" aria-expanded="false" aria-controls="acc-q3-body">
+              <div class="acc-left">
+                <div class="acc-dot" style="background:#e83d6a"></div>
+                <div>
+                  <div class="acc-title">Q3 · Oct–Dec 2025 🔴 Most Recent</div>
+                  <div class="acc-subtitle">iROAS $3.74 · Actual invest $555K</div>
+                </div>
+              </div>
+              <div class="acc-right">
+                <span class="acc-active-tag">◉ Active</span>
+                <span class="acc-proj" id="q3-proj" style="color:#e83d6a">—</span>
+                <span class="acc-chevron">▼</span>
+              </div>
+            </div>
+            <div class="acc-body" id="acc-q3-body">
+              <div class="acc-bar-wrap"><div class="acc-bar" id="acc-bar-q3" style="width:22%;background:linear-gradient(90deg,#e83d6a,#f472b6)"></div></div>
+              <div class="acc-row"><span>iROAS (Q3)</span><strong style="color:#e83d6a">$3.74</strong></div>
+              <div class="acc-row"><span>Actual Investment</span><strong>$554,700</strong></div>
+              <div class="acc-row"><span>Actual Incremental Revenue</span><strong style="color:#e83d6a">$2.08M</strong></div>
+              <div class="acc-row"><span>Actual Impressions</span><strong>250M</strong></div>
+              <div class="acc-row"><span>Actual ROAS</span><strong>$32.09</strong></div>
+              <div class="acc-row"><span>Sales Lift</span><strong>8.7%</strong></div>
+              <div class="acc-row"><span>YoY GMV Growth</span><strong style="color:#e83d6a">+7.15%</strong></div>
+              <div class="acc-row" style="background:rgba(232,61,106,.1);border-radius:6px;padding:6px 4px;margin-top:6px">
+                <span style="color:#fda4af;font-weight:700">→ Projected at slider $</span>
+                <strong id="q3-proj-body" style="color:#fda4af">—</strong>
+              </div>
+            </div>
+          </div>
+        </div><!-- /acc-section -->
+
+        <div class="chart-wrap" style="margin-top:4px">
+          <canvas id="wmtQChart" aria-label="Walmart quarterly iROAS bar chart" role="img"></canvas>
+        </div>
+      </div>
+    </article>
+
+    <!-- ══ REST OF MARKET ══ -->
+    <article class="section-card rom-card" aria-label="Rest of Market">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-icon rom-icon">🟢</div>
+          <div><h3>Rest of Market</h3><p>NCS Verified · Same investment, ROM iROAS applied</p></div>
+        </div>
+
+        <div class="highlight-box rom-hl" aria-live="polite">
+          <div class="hl-main">
+            <small>Projected Incremental Return @ Investment</small>
+            <strong id="rom-return">—</strong>
+            <div class="hl-sub">NCS-verified iROAS × same investment amount</div>
+          </div>
+          <div class="hl-badge rom-badge">iROAS: $80.49</div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-box stat-full">
+            <div class="label">NCS Verified iROAS — Rest of Market</div>
+            <div class="value" style="color:#5eead4;font-size:1.9rem">$80.49</div>
+            <div class="sub">Highest verified rate in portfolio</div>
+          </div>
+          <div class="stat-box stat-full">
+            <div class="label">Key Scenario Returns</div>
+            <div class="scenario-pills">
+              <span class="pill">$500K → $40.2M</span>
+              <span class="pill">$1M → $80.5M</span>
+              <span class="pill">$2M → $160.1M</span>
+              <span class="pill">$4M → $321.0M</span>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+    </article>
+
+    <!-- ══ COMBINED TOTAL ══ -->
+    <article class="section-card total-card" aria-label="Combined Total">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-icon total-icon">⚡</div>
+          <div><h3>Combined Total</h3><p>Walmart + ROM · Same $ invested, both channels return simultaneously</p></div>
+        </div>
+
+        <div class="highlight-box total-hl" aria-live="polite">
+          <div class="hl-main">
+            <small>Total Incremental Return (WMT + ROM)</small>
+            <strong id="total-return-big">—</strong>
+            <div class="hl-sub">One investment, two revenue streams</div>
+          </div>
+          <div class="hl-badge total-badge" id="total-iroas-badge">Blended iROAS: —</div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="label">Walmart Return</div>
+            <div class="value" style="color:#93c5fd" id="tot-wmt-ret">—</div>
+          </div>
+          <div class="stat-box">
+            <div class="label">ROM Return</div>
+            <div class="value" style="color:#5eead4" id="tot-rom-ret">—</div>
+          </div>
+          <div class="stat-box">
+            <div class="label">Investment (both)</div>
+            <div class="value" id="tot-invest">—</div>
+            <div class="sub">Applied to each channel</div>
+          </div>
+          <div class="stat-box">
+            <div class="label">Net Gain</div>
+            <div class="value" style="color:var(--wm-spark)" id="tot-net">—</div>
+            <div class="sub">Return minus 1× invest</div>
+          </div>
+          <div class="stat-box stat-full">
+            <div class="label">FY26 Baseline — Actual Q1–Q3 Walmart Only</div>
+            <div style="display:flex;gap:16px;margin-top:6px;flex-wrap:wrap">
+              <div><div style="font-size:.68rem;color:var(--text-muted)">WMT Spend</div><div style="font-weight:700;color:#fff">$1.27M</div></div>
+              <div><div style="font-size:.68rem;color:var(--text-muted)">Incremental</div><div style="font-weight:700;color:#93c5fd">$10.02M</div></div>
+              <div><div style="font-size:.68rem;color:var(--text-muted)">Traceable Sales</div><div style="font-weight:700;color:var(--wm-spark)">$55.9M</div></div>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+    </article>
+
+  </main>
+
+
+  <!-- BRAND CALCULATORS: MIKE'S HARD & CAYMAN JACK -->
+  <section class="brands-section" aria-label="Brand investment calculators">
+    <div class="brands-header">
+      <h2>🍺 Additional MABI Brand Calculators</h2>
+      <p>Single-quarter Walmart Connect campaigns &middot; Simplified iROAS model &middot; No REST of Market overlay</p>
+    </div>
+    <div class="brands-grid">
+
+      <!-- MIKE'S HARD LEMONADE -->
+      <article class="brand-calc-card mh-card" aria-label="Mike's Hard Lemonade calculator">
+        <div class="card-inner">
+          <div class="card-header">
+            <div class="card-icon mh-icon">🍋</div>
+            <div>
+              <h3>Mike's Hard Lemonade</h3>
+              <p>Display &middot; Jun 2 – Aug 31, 2025 &middot; Q2 FY26 &middot; iROAS $11.16</p>
+            </div>
+          </div>
+
+          <div class="brand-results-grid">
+            <div class="stat-box"><div class="label">Actual Investment</div><div class="value" style="color:#fbbf24">$311K</div></div>
+            <div class="stat-box"><div class="label">Total Sales</div><div class="value" style="color:#fff">$3.5M</div></div>
+            <div class="stat-box"><div class="label">ROAS</div><div class="value" style="color:#fbbf24">$11.17</div></div>
+            <div class="stat-box"><div class="label">Sales Lift</div><div class="value" style="color:#fbbf24">13.42%</div></div>
+            <div class="stat-box"><div class="label">Impressions</div><div class="value">89.1M</div></div>
+            <div class="stat-box"><div class="label">New Buyers</div><div class="value" style="color:#fbbf24">57%</div></div>
+          </div>
+
+          <div class="highlight-box mh-hl" aria-live="polite">
+            <div class="hl-main">
+              <small>Projected Incremental Return</small>
+              <strong id="mh-return">—</strong>
+              <div class="hl-sub">iROAS $11.16 applied to your investment amount</div>
+            </div>
+            <div class="hl-badge mh-badge">iROAS: $11.16</div>
+          </div>
+
+          <div class="brand-slider-wrap">
+            <div class="slider-label">
+              <span>💰 Investment Amount</span>
+              <strong id="mh-invest-label">$500K</strong>
+            </div>
+            <input type="range" id="mh-slider" class="mh-range" min="100000" max="3000000" step="50000" value="500000"
+                   aria-label="Mike's Hard investment amount" oninput="updateBrand('mh')"/>
+            <div style="display:flex;justify-content:space-between;margin-top:6px">
+              <span style="font-size:.72rem;color:var(--text-muted)">$100K</span>
+              <span style="font-size:.72rem;color:var(--text-muted)">$1M</span>
+              <span style="font-size:.72rem;color:var(--text-muted)">$2M</span>
+              <span style="font-size:.72rem;color:var(--text-muted)">$3M</span>
+            </div>
+          </div>
+
+          <div class="brand-return-bar">
+            <div class="tbar-item"><small>Investment</small><strong id="mh-tb-invest" style="color:#fbbf24">—</strong></div>
+            <div class="tbar-div" aria-hidden="true"></div>
+            <div class="tbar-item"><small>Projected Return</small><strong id="mh-tb-return" style="color:#fff">—</strong></div>
+            <div class="tbar-div" aria-hidden="true"></div>
+            <div class="tbar-item"><small>Net Gain</small><strong id="mh-tb-net" style="color:#fbbf24">—</strong></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- CAYMAN JACK -->
+      <article class="brand-calc-card cj-card" aria-label="Cayman Jack calculator">
+        <div class="card-inner">
+          <div class="card-header">
+            <div class="card-icon cj-icon">🍹</div>
+            <div>
+              <h3>Cayman Jack Margarita</h3>
+              <p>Display &middot; Jun 2 – Aug 31, 2025 &middot; Q2 FY26 &middot; iROAS $16.82</p>
+            </div>
+          </div>
+
+          <div class="brand-results-grid">
+            <div class="stat-box"><div class="label">Actual Investment</div><div class="value" style="color:#22d3ee">$267.8K</div></div>
+            <div class="stat-box"><div class="label">Total Sales</div><div class="value" style="color:#fff">$4.7M</div></div>
+            <div class="stat-box"><div class="label">ROAS</div><div class="value" style="color:#22d3ee">$17.57</div></div>
+            <div class="stat-box"><div class="label">Sales Lift</div><div class="value" style="color:#22d3ee">25.96%</div></div>
+            <div class="stat-box"><div class="label">Impressions</div><div class="value">61.3M</div></div>
+            <div class="stat-box"><div class="label">New Buyers</div><div class="value" style="color:#22d3ee">50%+</div></div>
+          </div>
+
+          <div class="highlight-box cj-hl" aria-live="polite">
+            <div class="hl-main">
+              <small>Projected Incremental Return</small>
+              <strong id="cj-return">—</strong>
+              <div class="hl-sub">iROAS $16.82 applied to your investment amount</div>
+            </div>
+            <div class="hl-badge cj-badge">iROAS: $16.82</div>
+          </div>
+
+          <div class="brand-slider-wrap">
+            <div class="slider-label">
+              <span>💰 Investment Amount</span>
+              <strong id="cj-invest-label">$500K</strong>
+            </div>
+            <input type="range" id="cj-slider" class="cj-range" min="100000" max="3000000" step="50000" value="500000"
+                   aria-label="Cayman Jack investment amount" oninput="updateBrand('cj')"/>
+            <div style="display:flex;justify-content:space-between;margin-top:6px">
+              <span style="font-size:.72rem;color:var(--text-muted)">$100K</span>
+              <span style="font-size:.72rem;color:var(--text-muted)">$1M</span>
+              <span style="font-size:.72rem;color:var(--text-muted)">$2M</span>
+              <span style="font-size:.72rem;color:var(--text-muted)">$3M</span>
+            </div>
+          </div>
+
+          <div class="brand-return-bar">
+            <div class="tbar-item"><small>Investment</small><strong id="cj-tb-invest" style="color:#22d3ee">—</strong></div>
+            <div class="tbar-div" aria-hidden="true"></div>
+            <div class="tbar-item"><small>Projected Return</small><strong id="cj-tb-return" style="color:#fff">—</strong></div>
+            <div class="tbar-div" aria-hidden="true"></div>
+            <div class="tbar-item"><small>Net Gain</small><strong id="cj-tb-net" style="color:#22d3ee">—</strong></div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- INSIGHTS -->
+  <section class="insights" aria-label="Strategic insights">
+    <div class="insight-card">
+      <h4>🏆 Q2 Is the Walmart Lever</h4>
+      <p>Jul–Sep 2025 delivered a <strong style="color:#93c5fd">$16.75 iROAS</strong> — 4.5× better than Q3. 18.22% sales lift and 52% new buyer rate signal the strongest period for Walmart investment. Prioritize Q2 budgeting for maximum in-store efficiency.</p>
+    </div>
+    <div class="insight-card">
+      <h4>📈 Q3 Is a Compounding Signal</h4>
+      <p>Oct–Dec 2025 showed the <strong style="color:#fda4af">largest YoY GMV growth (+7.15%)</strong> despite a lower $3.74 iROAS. Sustained presence is building brand equity beyond pure efficiency — the floor is rising quarter over quarter.</p>
+    </div>
+    <div class="insight-card">
+      <h4>🎯 This Is an AND, Not an OR</h4>
+      <p>Every dollar invested generates <strong style="color:var(--wm-spark)">simultaneous returns</strong> at Walmart AND in the broader market. There is no trade-off — both channels benefit from the same investment, making the combined blended iROAS the right planning metric.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>FY26 White Claw × Walmart Connect · Mark Anthony Brands Inc. · Q1 Apr–Jun | Q2 Jul–Sep | Q3 Oct–Dec 2025</p>
+    <p style="margin-top:4px">iROAS: WMT Q1 $1.70 · Q2 $16.75 · Q3 $3.74 · ROM $80.49 · Sources: WMC SLR Oct 2025 · Display EOC Reports (FY26)</p>
+  </footer>
+
+</div>
+<script src="whiteclaw-dashboard.js"></script>
+</body>
+</html>
